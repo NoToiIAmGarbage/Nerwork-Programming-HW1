@@ -8,6 +8,7 @@ using namespace std;
 int opt = 1, PORT;
 const int mx_q = 100;
 struct sockaddr_in addr;
+int addrlen;
 
 char buffer[1024];
 
@@ -23,11 +24,16 @@ public:
 			exit(0);
 		}
 		// connect to server
-		cout << "TCP connection cmopleted\n";
 
 	}
-	string readMes() {
-		return "";
+	void readMes() {
+		int val = read(TCP_fd, buffer, 1024);
+		buffer[val] = '\0';
+		cout << buffer << '\n';
+	}
+
+	void close_connection() {
+		close(client_fd);
 	}
 
 	void sendMes(string str) {
@@ -36,6 +42,33 @@ public:
 	}
 private:
 	int TCP_fd, client_fd;
+};
+
+class UDP {
+public:
+	UDP() {
+		UDP_fd = socket(AF_INET, SOCK_DGRAM, 0);
+		if(UDP_fd < 0) {
+			cout << "UDP fd failed creating\n";
+			exit(0);
+		}
+	}
+
+	void close_connection() {
+		close(UDP_fd);
+	}
+
+	void sendMes(string str) {
+		sendto(UDP_fd, str.c_str(), str.size(), 0, (struct sockaddr*)&addr, sizeof(addr));
+	}
+
+	void readMes() {
+		int val = recvfrom(UDP_fd, buffer, 1024, 0, (struct sockaddr*)&addr, (socklen_t*)&addrlen);
+		buffer[val] = '\0';
+		cout << buffer << '\n';
+	}
+private:
+	int UDP_fd;
 };
 
 int main(int argc, char** argv) {
@@ -52,11 +85,34 @@ int main(int argc, char** argv) {
 		cout << "\nInvalid address/ Address not supported\n";
 		return 0;
 	}
+	addrlen = sizeof(addr);
 	// setup address
 	
-	TCP tcp;
+	TCP tcp; UDP udp;
+	tcp.readMes();
 	string str;
-	while(cin >> str) {
-		tcp.sendMes(str);
+	set<string> udp_comm({"game-rule", "register"});
+	while(getline(cin, str)) {
+		string tmp = "";
+		for(int i = 0; i < str.size(); i ++) {
+			if(str[i] == ' ') {
+				break;
+			}
+			tmp += str[i];
+		}
+		if(tmp == "exit") {
+			udp.close_connection();
+			tcp.close_connection();
+			return 0;
+		}
+		else if(udp_comm.count(tmp)) {
+			udp.sendMes(str);
+			udp.readMes();
+		}
+		else {
+			tcp.sendMes(str);
+			tcp.readMes();
+		}
 	}
+	return 0;
 }
