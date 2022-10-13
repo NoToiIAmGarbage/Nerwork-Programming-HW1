@@ -111,7 +111,7 @@ public:
 	}
 
 	void process_gamerule() {
-		sendMes("*****Welcome to Game 1A2B*****\n1. Each question is a 4-digit secret number.\n2. After each guess, you will get a hint with the following information:\n2.1 The number of \"A\", which are digits in the guess that are in the correct position.\n2.2 The number of \"B\", which are digits in the guess that are in the answer but are in the wrong position.The hint will be formatted as \"xAyB\".\n3. 5 chances for each question.");
+		sendMes("1. Each question is a 4-digit secret number.\n2. After each guess, you will get a hint with the following information:\n2.1 The number of \"A\", which are digits in the guess that are in the correct position.\n2.2 The number of \"B\", which are digits in the guess that are in the answer but are in the wrong position.\nThe hint will be formatted as \"xAyB\".\n3. 5 chances for each question.");
 	}
 
 	void process_logout(int ind) {
